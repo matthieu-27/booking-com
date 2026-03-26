@@ -56,7 +56,6 @@ public class Room implements Serializable {
                 " id='" + getId() + "'" +
                 ", name='" + getName() + "'" +
                 ", capacity='" + getCapacity() + "'" +
-                ", bookings='" + getBookings() + "'" +
                 "}";
     }
 

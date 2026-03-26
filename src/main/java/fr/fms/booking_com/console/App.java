@@ -98,6 +98,7 @@ public class App {
         Optional<Room> roomOpt = roomRepository.findById(id);
         if (roomOpt.isPresent()) {
             Room room = roomOpt.get();
+            System.out.println(room);
             roomRepository.delete(room);
             System.out.println("Salle supprimé avec succès");
         } else {
@@ -106,17 +107,31 @@ public class App {
     }
 
     private void modifyRoom() {
+
         Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la Salle: "));
 
         Optional<Room> roomOpt = roomRepository.findById(id);
         if (roomOpt.isPresent()) {
             Room room = roomOpt.get();
+
+            System.out.println(room.toString());
+
             String name = UserRoomInputValidator.readInput("Nouveau nom (" + room.getName() + "): ");
             int capacity = Integer
                     .parseInt(UserRoomInputValidator.readInput("Nouvelle capacité (" + room.getCapacity() + "): "));
 
             room.setName(name.isEmpty() ? room.getName() : name);
             room.setCapacity(capacity > 0 ? room.getCapacity() : capacity);
+            try {
+                validator.validate(room);
+            } catch (Exception e) {
+                System.err.println("Erreur : " + e.getMessage());
+                printmenu();
+            } finally {
+                roomRepository.save(room);
+                System.out.println("Données valides ! Salle modifié, " + room);
+            }
+
         } else {
             System.out.println("Salle introuvable");
         }
@@ -130,14 +145,13 @@ public class App {
         try {
             room = new Room(name, capacity);
             validator.validate(room);
-            System.out.println("Données valides ! Salle crée, " + name);
         } catch (Exception e) {
             System.err.println("Erreur : " + e.getMessage());
             printmenu();
         } finally {
             room = new Room(name, capacity);
             roomRepository.save(room);
-            System.out.println("Salle ajoutée avec succès");
+            System.out.println("Données valides ! Salle crée, " + room);
         }
 
     }
