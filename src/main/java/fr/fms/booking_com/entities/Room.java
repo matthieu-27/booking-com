@@ -32,6 +32,17 @@ public class Room implements Serializable {
     @OneToMany(mappedBy = "room")
     private Collection<Booking> bookings;
 
+    /**
+     * Constructor for admin
+     * 
+     * @param name
+     * @param capacity
+     */
+    public Room(String name, int capacity) {
+        this.name = name;
+        this.capacity = capacity;
+    }
+
     public Long getId() {
         return this.id;
     }
