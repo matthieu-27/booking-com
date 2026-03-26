@@ -1,8 +1,12 @@
 package fr.fms.booking_com.console;
 
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +25,13 @@ public class App {
 
     private Scanner scanner = new Scanner(System.in);
 
+    private final Validator validator;
+
+    public App() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        this.validator = factory.getValidator();
+    }
+
     public void start() {
         boolean running = true;
         while (running) {
@@ -28,7 +39,11 @@ public class App {
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
-                    createRoom();
+                    try {
+                        createRoom();
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case "2":
                     modifyRoom();
@@ -95,14 +110,25 @@ public class App {
         throw new UnsupportedOperationException("Unimplemented method 'modifyRoom'");
     }
 
-    private void createRoom() {
-        System.out.println("Nom de la salle: ");
-        String name = scanner.nextLine();
+    private void createRoom() throws Exception {
+        String name = App.readInput("Nom de la salle:");
         System.out.println("Capacité de la salle:");
-        int capacity = scanner.nextInt();
-        Room room = new Room(name, capacity);
-        roomRepository.save(room);
-        System.out.println("Salle ajoutée avec succès");
+        int capacity = Integer.parseInt(App.readInput("Capacité de la salle:"));
+        Room room;
+
+        try {
+            room = new Room(name, capacity);
+            this.validateRoom(room);
+            System.out.println("Données valides ! Salle crée, " + name);
+        } catch (Exception e) {
+            System.err.println("Erreur : " + e.getMessage());
+            printmenu();
+        } finally {
+            room = new Room(name, capacity);
+            roomRepository.save(room);
+            System.out.println("Salle ajoutée avec succès");
+        }
+
     }
 
     private void printmenu() {
@@ -118,4 +144,17 @@ public class App {
         System.out.println("9: Quitter le programme");
     }
 
+    public void validateRoom(Room userInput) {
+        Set<ConstraintViolation<Room>> violations = validator.validate(userInput);
+        if (!violations.isEmpty()) {
+            violations.forEach(violation -> System.err.println(violation.getMessage()));
+            throw new IllegalArgumentException("Les données saisies sont invalides.");
+        }
+    }
+
+    public static String readInput(String prompt) {
+        System.out.print(prompt);
+        Scanner scanner = new Scanner(System.in);
+        return scanner.nextLine();
+    }
 }
