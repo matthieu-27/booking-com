@@ -29,11 +29,11 @@ public class Booking implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @FutureOrPresent
+    @FutureOrPresent(message = "La réservation ne peux pas être dans le passé")
     private LocalDate desiredAt;
-    @FutureOrPresent
+    @FutureOrPresent(message = "La réservation ne peux pas être dans le passé")
     private LocalDateTime scheduledAt;
-    @PastOrPresent
+    @PastOrPresent(message = "La fin de la réservation ne peux pas être dans le futur")
     private LocalDateTime endedAt;
 
     @ManyToOne
