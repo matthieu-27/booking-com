@@ -14,6 +14,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Min;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,7 +29,11 @@ public class Room implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "La salle doit avoir un nom")
     private String name;
+
+    @Min(value = 1, message = "La salle doit etre un entier positif")
     private int capacity;
 
     @OneToMany(mappedBy = "room")

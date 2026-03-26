@@ -10,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.PastOrPresent;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,12 +29,20 @@ public class Booking implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @FutureOrPresent
     private LocalDate desiredAt;
+    @FutureOrPresent
     private LocalDateTime scheduledAt;
+    @PastOrPresent
     private LocalDateTime endedAt;
 
     @ManyToOne
     private Room room;
+
+    public Booking(LocalDate desiredAt, LocalDateTime scheduledAt) {
+        this.desiredAt = desiredAt;
+        this.scheduledAt = scheduledAt;
+    }
 
     public void setId(Long id) {
         this.id = id;
