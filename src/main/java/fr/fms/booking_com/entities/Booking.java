@@ -3,11 +3,13 @@ package fr.fms.booking_com.entities;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Locale.Category;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +30,13 @@ public class Booking implements Serializable {
     private LocalDate desiredAt;
     private LocalDateTime scheduledAt;
     private LocalDateTime endedAt;
+
+    @ManyToOne
+    private Room room;
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getId() {
         return this.id;
@@ -55,6 +64,14 @@ public class Booking implements Serializable {
 
     public void setEndedAt(LocalDateTime endedAt) {
         this.endedAt = endedAt;
+    }
+
+    public Room getRoom() {
+        return this.room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
 }
