@@ -109,7 +109,6 @@ public class App {
 
     private void createRoom() throws Exception {
         String name = UserRoomInputValidator.readInput("Nom de la salle:");
-        System.out.println("Capacité de la salle:");
         int capacity = Integer.parseInt(UserRoomInputValidator.readInput("Capacité de la salle:"));
         Room room;
 
