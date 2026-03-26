@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import fr.fms.booking_com.dao.BookingRepository;
 import fr.fms.booking_com.dao.RoomRepository;
 import fr.fms.booking_com.entities.Room;
+import fr.fms.booking_com.utils.UserRoomInputValidator;
 
 @Component
 public class App {
@@ -25,12 +26,8 @@ public class App {
 
     private Scanner scanner = new Scanner(System.in);
 
-    private final Validator validator;
-
-    public App() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        this.validator = factory.getValidator();
-    }
+    @Autowired
+    private UserRoomInputValidator validator;
 
     public void start() {
         boolean running = true;
@@ -111,14 +108,14 @@ public class App {
     }
 
     private void createRoom() throws Exception {
-        String name = App.readInput("Nom de la salle:");
+        String name = UserRoomInputValidator.readInput("Nom de la salle:");
         System.out.println("Capacité de la salle:");
-        int capacity = Integer.parseInt(App.readInput("Capacité de la salle:"));
+        int capacity = Integer.parseInt(UserRoomInputValidator.readInput("Capacité de la salle:"));
         Room room;
 
         try {
             room = new Room(name, capacity);
-            this.validateRoom(room);
+            validator.validate(room);
             System.out.println("Données valides ! Salle crée, " + name);
         } catch (Exception e) {
             System.err.println("Erreur : " + e.getMessage());
@@ -144,17 +141,4 @@ public class App {
         System.out.println("9: Quitter le programme");
     }
 
-    public void validateRoom(Room userInput) {
-        Set<ConstraintViolation<Room>> violations = validator.validate(userInput);
-        if (!violations.isEmpty()) {
-            violations.forEach(violation -> System.err.println(violation.getMessage()));
-            throw new IllegalArgumentException("Les données saisies sont invalides.");
-        }
-    }
-
-    public static String readInput(String prompt) {
-        System.out.print(prompt);
-        Scanner scanner = new Scanner(System.in);
-        return scanner.nextLine();
-    }
 }
