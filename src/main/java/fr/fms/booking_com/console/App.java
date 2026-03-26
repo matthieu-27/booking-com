@@ -2,12 +2,6 @@ package fr.fms.booking_com.console;
 
 import java.util.Optional;
 import java.util.Scanner;
-import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -99,8 +93,16 @@ public class App {
     }
 
     private void deleteRoom() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRoom'");
+        Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la Salle: "));
+
+        Optional<Room> roomOpt = roomRepository.findById(id);
+        if (roomOpt.isPresent()) {
+            Room room = roomOpt.get();
+            roomRepository.delete(room);
+            System.out.println("Salle supprimé avec succès");
+        } else {
+            System.out.println("Salle introuvable");
+        }
     }
 
     private void modifyRoom() {
