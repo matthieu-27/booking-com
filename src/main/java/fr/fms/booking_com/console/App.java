@@ -1,5 +1,6 @@
 package fr.fms.booking_com.console;
 
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -29,7 +30,7 @@ public class App {
     @Autowired
     private UserRoomInputValidator validator;
 
-    public void start() {
+    public void start() throws Exception {
         boolean running = true;
         while (running) {
             printmenu();
@@ -103,8 +104,20 @@ public class App {
     }
 
     private void modifyRoom() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'modifyRoom'");
+        Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la Salle: "));
+
+        Optional<Room> roomOpt = roomRepository.findById(id);
+        if (roomOpt.isPresent()) {
+            Room room = roomOpt.get();
+            String name = UserRoomInputValidator.readInput("Nouveau nom (" + room.getName() + "): ");
+            int capacity = Integer
+                    .parseInt(UserRoomInputValidator.readInput("Nouvelle capacité (" + room.getCapacity() + "): "));
+
+            room.setName(name.isEmpty() ? room.getName() : name);
+            room.setCapacity(capacity > 0 ? room.getCapacity() : capacity);
+        } else {
+            System.out.println("Salle introuvable");
+        }
     }
 
     private void createRoom() throws Exception {

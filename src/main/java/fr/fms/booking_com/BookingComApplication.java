@@ -18,7 +18,7 @@ public class BookingComApplication implements CommandLineRunner {
 	}
 
 	@Override
-	public void run(String... args) {
+	public void run(String... args) throws Exception {
 		appMgr.start();
 	}
 
