@@ -50,6 +50,16 @@ public class Room implements Serializable {
         this.capacity = capacity;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                " id='" + getId() + "'" +
+                ", name='" + getName() + "'" +
+                ", capacity='" + getCapacity() + "'" +
+                ", bookings='" + getBookings() + "'" +
+                "}";
+    }
+
     public Long getId() {
         return this.id;
     }

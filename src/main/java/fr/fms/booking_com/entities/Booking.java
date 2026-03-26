@@ -44,6 +44,17 @@ public class Booking implements Serializable {
         this.scheduledAt = scheduledAt;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                " id='" + getId() + "'" +
+                ", desiredAt='" + getDesiredAt() + "'" +
+                ", scheduledAt='" + getScheduledAt() + "'" +
+                ", endedAt='" + getEndedAt() + "'" +
+                ", room='" + getRoom() + "'" +
+                "}";
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
