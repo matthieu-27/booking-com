@@ -29,7 +29,7 @@ public class Room implements Serializable {
     private String name;
     private int capacity;
 
-    @OneToMany(mappedBy = "booking")
+    @OneToMany(mappedBy = "room")
     private Collection<Booking> bookings;
 
     public Long getId() {
