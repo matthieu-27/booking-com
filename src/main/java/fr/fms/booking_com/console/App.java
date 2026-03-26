@@ -1,12 +1,15 @@
 package fr.fms.booking_com.console;
 
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import fr.fms.booking_com.dao.BookingRepository;
 import fr.fms.booking_com.dao.RoomRepository;
+import fr.fms.booking_com.entities.Room;
 
 @Component
 public class App {
@@ -52,7 +55,7 @@ public class App {
                     running = false;
                     break;
                 default:
-                    System.out.println("Choix invalide.");
+                    break;
             }
         }
     }
@@ -93,8 +96,13 @@ public class App {
     }
 
     private void createRoom() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createRoom'");
+        System.out.println("Nom de la salle: ");
+        String name = scanner.nextLine();
+        System.out.println("Capacité de la salle:");
+        int capacity = scanner.nextInt();
+        Room room = new Room(name, capacity);
+        roomRepository.save(room);
+        System.out.println("Salle ajoutée avec succès");
     }
 
     private void printmenu() {
