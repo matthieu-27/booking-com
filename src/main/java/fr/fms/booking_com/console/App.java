@@ -97,7 +97,7 @@ public class App {
 
     private void createBooking() {
         Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la Salle: "));
-        Room room;
+        Room room = null;
         Optional<Room> roomOpt = roomRepository.findById(id);
         if (roomOpt.isPresent()) {
             room = roomOpt.get();
@@ -115,7 +115,7 @@ public class App {
                     dateFormatter);
             LocalTime scheduledAt = LocalTime.parse(UserRoomInputValidator.readInput("Heure désiré (ex: 02:00:00) : "),
                     timeFormatter);
-            booking = new Booking(desiredAt, scheduledAt);
+            booking = new Booking(desiredAt, scheduledAt, room);
             bookingRepository.save(booking);
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -191,8 +191,8 @@ public class App {
         System.out.println("1: Créer une salle");
         System.out.println("2: Modifier une salle");
         System.out.println("3: Supprimer un salle");
-        System.out.println("4: Créer une réservations");
-        System.out.println("5: Supprimer une réservations");
+        System.out.println("4: Créer une réservation");
+        System.out.println("5: Supprimer une réservation");
         System.out.println("6: Vérifier les conflits");
         System.out.println("7: Afficher les réservations");
         System.out.println("8: Afficher les salles disponibles");
