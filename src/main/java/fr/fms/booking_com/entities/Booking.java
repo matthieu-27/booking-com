@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Locale.Category;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 
 import lombok.AllArgsConstructor;
@@ -32,7 +32,7 @@ public class Booking implements Serializable {
     private Long id;
     @FutureOrPresent(message = "La réservation ne peux pas être dans le passé")
     private LocalDate desiredAt;
-    @FutureOrPresent(message = "La réservation ne peux pas être dans le passé")
+    @NotBlank(message = "Il doit y avoir une heure de réservation")
     private LocalTime scheduledAt;
     @PastOrPresent(message = "La fin de la réservation ne peux pas être dans le futur")
     private LocalDateTime endedAt;
