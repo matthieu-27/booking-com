@@ -1,5 +1,8 @@
 package fr.fms.booking_com.console;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -8,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import fr.fms.booking_com.dao.BookingRepository;
 import fr.fms.booking_com.dao.RoomRepository;
+import fr.fms.booking_com.entities.Booking;
 import fr.fms.booking_com.entities.Room;
 import fr.fms.booking_com.utils.UserBookingInputValidator;
 import fr.fms.booking_com.utils.UserRoomInputValidator;
@@ -92,8 +96,30 @@ public class App {
     }
 
     private void createBooking() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createBooking'");
+        Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la Salle: "));
+        Room room;
+        Optional<Room> roomOpt = roomRepository.findById(id);
+        if (roomOpt.isPresent()) {
+            room = roomOpt.get();
+        } else {
+            System.out.println("Salle introuvable");
+            printmenu();
+        }
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        Booking booking;
+        try {
+            LocalDate desiredAt = LocalDate.parse(
+                    UserBookingInputValidator.readInput("Jour désire (ex: 03/03/2026) : "),
+                    dateFormatter);
+            LocalTime scheduledAt = LocalTime.parse(UserRoomInputValidator.readInput("Heure désiré (ex: 02:00:00) : "),
+                    timeFormatter);
+            booking = new Booking(desiredAt, scheduledAt);
+            bookingRepository.save(booking);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     private void deleteRoom() {
