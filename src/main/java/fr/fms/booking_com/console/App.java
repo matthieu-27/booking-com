@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import fr.fms.booking_com.dao.BookingRepository;
 import fr.fms.booking_com.dao.RoomRepository;
 import fr.fms.booking_com.entities.Room;
+import fr.fms.booking_com.utils.UserBookingInputValidator;
 import fr.fms.booking_com.utils.UserRoomInputValidator;
 
 @Component
@@ -22,7 +23,10 @@ public class App {
     private Scanner scanner = new Scanner(System.in);
 
     @Autowired
-    private UserRoomInputValidator validator;
+    private UserRoomInputValidator roomValidator;
+
+    @Autowired
+    private UserBookingInputValidator bookingValidator;
 
     public void start() throws Exception {
         boolean running = true;
@@ -123,7 +127,7 @@ public class App {
             room.setName(name.isEmpty() ? room.getName() : name);
             room.setCapacity(capacity > 0 ? room.getCapacity() : capacity);
             try {
-                validator.validate(room);
+                roomValidator.validate(room);
             } catch (Exception e) {
                 System.err.println("Erreur : " + e.getMessage());
                 printmenu();
@@ -144,7 +148,7 @@ public class App {
 
         try {
             room = new Room(name, capacity);
-            validator.validate(room);
+            roomValidator.validate(room);
         } catch (Exception e) {
             System.err.println("Erreur : " + e.getMessage());
             printmenu();
