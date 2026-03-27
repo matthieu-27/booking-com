@@ -3,6 +3,7 @@ package fr.fms.booking_com.entities;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Locale.Category;
 
 import javax.persistence.Entity;
@@ -32,14 +33,14 @@ public class Booking implements Serializable {
     @FutureOrPresent(message = "La réservation ne peux pas être dans le passé")
     private LocalDate desiredAt;
     @FutureOrPresent(message = "La réservation ne peux pas être dans le passé")
-    private LocalDateTime scheduledAt;
+    private LocalTime scheduledAt;
     @PastOrPresent(message = "La fin de la réservation ne peux pas être dans le futur")
     private LocalDateTime endedAt;
 
     @ManyToOne
     private Room room;
 
-    public Booking(LocalDate desiredAt, LocalDateTime scheduledAt) {
+    public Booking(LocalDate desiredAt, LocalTime scheduledAt) {
         this.desiredAt = desiredAt;
         this.scheduledAt = scheduledAt;
     }
@@ -71,11 +72,11 @@ public class Booking implements Serializable {
         this.desiredAt = desiredAt;
     }
 
-    public LocalDateTime getScheduledAt() {
+    public LocalTime getScheduledAt() {
         return this.scheduledAt;
     }
 
-    public void setScheduledAt(LocalDateTime scheduledAt) {
+    public void setScheduledAt(LocalTime scheduledAt) {
         this.scheduledAt = scheduledAt;
     }
 
