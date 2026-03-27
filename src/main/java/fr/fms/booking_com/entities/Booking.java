@@ -40,9 +40,10 @@ public class Booking implements Serializable {
     @ManyToOne
     private Room room;
 
-    public Booking(LocalDate desiredAt, LocalTime scheduledAt) {
+    public Booking(LocalDate desiredAt, LocalTime scheduledAt, Room room) {
         this.desiredAt = desiredAt;
         this.scheduledAt = scheduledAt;
+        this.room = room;
     }
 
     @Override
