@@ -3,8 +3,10 @@ package fr.fms.booking_com.console;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -75,24 +77,47 @@ public class App {
         }
     }
 
-    private void displayRooms() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayRooms'");
+    public List<Room> displayRooms() {
+        List<Room> rooms = roomRepository.findAll();
+        if (rooms.isEmpty()) {
+            System.out.println("Pas de salles créées.");
+        } else {
+            rooms.forEach(System.out::println);
+        }
+        return rooms;
     }
 
     private void displayBookings() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'displayBookings'");
+        bookingRepository.findAll().forEach(System.out::println);
     }
 
     private void verifyConflicts() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'verifyConflicts'");
+        List<Booking> conflicts = bookingRepository.findAll().stream()
+                .collect(Collectors.groupingBy(
+                        b -> b.getRoom().getId() + "-" + b.getDesiredAt() + "-" + b.getScheduledAt()))
+                .values().stream()
+                .filter(group -> group.size() > 1)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+
+        if (conflicts.isEmpty()) {
+            System.out.println("Aucun conflit détecté.");
+        } else {
+            System.out.println("Conflits détectés :");
+            conflicts.forEach(System.out::println);
+        }
     }
 
     private void deleteBooking() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteBooking'");
+        Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la réservation: "));
+        Optional<Booking> bookingOpt = bookingRepository.findById(id);
+        if (bookingOpt.isPresent()) {
+            System.out.println(bookingOpt.get());
+            bookingRepository.deleteById(id);
+            System.out.println("Réservation supprimée avec succès");
+        } else {
+            System.out.println("Réservation introuvable");
+        }
     }
 
     private void createBooking() {
