@@ -60,6 +60,7 @@ class AppTest {
     @Test
     void displayBookings_shouldReturnBookings_whenBookingExist() {
         Room room = new Room("Salle de test");
+        // stocking time in a variable so nanoseconds can be ignored
         LocalDate today = LocalDate.now();
         List<Booking> bookings = Arrays.asList(
             new Booking(today, LocalTime.of(9, 0), room)
