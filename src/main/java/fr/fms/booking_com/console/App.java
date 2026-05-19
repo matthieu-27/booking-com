@@ -87,8 +87,14 @@ public class App {
         return rooms;
     }
 
-    private void displayBookings() {
-        bookingRepository.findAll().forEach(System.out::println);
+    public List<Booking> displayBookings() {
+        List<Booking> bookings = bookingRepository.findAll();
+        if (bookings.isEmpty()) {
+            System.out.println("Pas de réunions créées.");
+        } else {
+            bookings.forEach(System.out::println);
+        }
+        return bookings;
     }
 
     private void verifyConflicts() {
