@@ -1,6 +1,7 @@
 package fr.fms.booking_com.console;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -57,18 +58,21 @@ public class App {
                     createBooking();
                     break;
                 case "5":
-                    deleteBooking();
+                    validateBooking();
                     break;
                 case "6":
-                    verifyConflicts();
+                    deleteBooking();
                     break;
                 case "7":
-                    displayBookings();
+                    verifyConflicts();
                     break;
                 case "8":
-                    displayRooms();
+                    displayBookings();
                     break;
                 case "9":
+                    displayRooms();
+                    break;
+                case "10":
                     running = false;
                     break;
                 default:
@@ -97,7 +101,7 @@ public class App {
         return bookings;
     }
 
-    private void verifyConflicts() {
+    public void verifyConflicts() { // check for conflicts that already are in database.
         List<Booking> conflicts = bookingRepository.findAll().stream()
                 .collect(Collectors.groupingBy(
                         b -> b.getRoom().getId() + "-" + b.getDesiredAt() + "-" + b.getScheduledAt()))
@@ -114,7 +118,29 @@ public class App {
         }
     }
 
-    private void deleteBooking() {
+    public void validateBooking(){
+        Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la réservation: "));
+        Optional<Booking> bookingOpt = bookingRepository.findById(id);
+
+        if (bookingOpt.isPresent()){
+            Booking booking = bookingOpt.get();
+            try {
+                String endedAt = UserBookingInputValidator.readInput("Réservation terminée ? (o/n)");
+                if(endedAt.equalsIgnoreCase("o")){
+                    booking.setEndedAt(LocalDateTime.now());
+                    bookingRepository.save(booking);
+                } else {
+                    start();
+                }
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        } else {
+            System.out.println("Réservation introuvable");
+        }
+    }
+
+    public void deleteBooking() {
         Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la réservation: "));
         Optional<Booking> bookingOpt = bookingRepository.findById(id);
         if (bookingOpt.isPresent()) {
@@ -126,7 +152,7 @@ public class App {
         }
     }
 
-    private void createBooking() {
+    public void createBooking() {
         Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la Salle: "));
         Room room = null;
         Optional<Room> roomOpt = roomRepository.findById(id);
@@ -140,12 +166,19 @@ public class App {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
         Booking booking;
+        // check for conflict between T and T+1h BEFORE saving in database
         try {
             LocalDate desiredAt = LocalDate.parse(
                     UserBookingInputValidator.readInput("Jour désire (ex: 03/03/2026) : "),
                     dateFormatter);
             LocalTime scheduledAt = LocalTime.parse(UserRoomInputValidator.readInput("Heure désiré (ex: 02:00:00) : "),
                     timeFormatter);
+
+            if (hasConflict(room.getId(), desiredAt, scheduledAt)) {
+                System.out.println("Créneau indisponible : une réservation active occupe déjà ce créneau.");
+                return;
+            }
+
             booking = new Booking(desiredAt, scheduledAt, room);
             bookingRepository.save(booking);
         } catch (Exception e) {
@@ -153,22 +186,34 @@ public class App {
         }
     }
 
-    private void deleteRoom() {
-        Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la Salle: "));
+    public boolean hasConflict(Long roomId, LocalDate desiredAt, LocalTime scheduledAt) { // helper for the T + T1h logic
+        LocalTime newEnd = scheduledAt.plusHours(1);
+        return bookingRepository
+                .findByRoomIdAndDesiredAtAndEndedAtIsNull(roomId, desiredAt)
+                .stream()
+                .anyMatch(b -> scheduledAt.isBefore(b.getScheduledAt().plusHours(1)) // here is the hour
+                        && b.getScheduledAt().isBefore(newEnd));
+    }
 
-        Optional<Room> roomOpt = roomRepository.findById(id);
-        if (roomOpt.isPresent()) {
-            Room room = roomOpt.get();
-            System.out.println(room);
-            roomRepository.delete(room);
-            System.out.println("Salle supprimé avec succès");
+    public void deleteRoom() {
+        Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la Salle: "));
+        if (deleteRoomById(id)) {
+            System.out.println("Salle supprimée avec succès");
         } else {
             System.out.println("Salle introuvable");
         }
     }
 
-    private void modifyRoom() {
+    public boolean deleteRoomById(Long id) {
+        Optional<Room> roomOpt = roomRepository.findById(id);
+        if (roomOpt.isPresent()) {
+            roomRepository.delete(roomOpt.get());
+            return true;
+        }
+        return false;
+    }
 
+    public void modifyRoom() {
         Long id = Long.valueOf(UserRoomInputValidator.readInput("ID de la Salle: "));
 
         Optional<Room> roomOpt = roomRepository.findById(id);
@@ -198,10 +243,15 @@ public class App {
         }
     }
 
-    private void createRoom() throws Exception {
+    public void createRoom() throws Exception {
         String name = UserRoomInputValidator.readInput("Nom de la salle:");
         int capacity = Integer.parseInt(UserRoomInputValidator.readInput("Capacité de la salle:"));
         Room room;
+
+        if (isRoomNameTaken(name)) {
+            System.out.println("Erreur : une salle avec le nom \"" + name + "\" existe déjà.");
+            return;
+        }
 
         try {
             room = new Room(name, capacity);
@@ -214,20 +264,23 @@ public class App {
             roomRepository.save(room);
             System.out.println("Données valides ! Salle crée, " + room);
         }
-
     }
 
-    private void printmenu() {
+    public void printmenu() {
         System.out.println("Bienvenue dans booking.com booking.Yeah !");
         System.out.println("1: Créer une salle");
         System.out.println("2: Modifier une salle");
         System.out.println("3: Supprimer un salle");
         System.out.println("4: Créer une réservation");
-        System.out.println("5: Supprimer une réservation");
-        System.out.println("6: Vérifier les conflits");
-        System.out.println("7: Afficher les réservations");
-        System.out.println("8: Afficher les salles disponibles");
-        System.out.println("9: Quitter le programme");
+        System.out.println("5: Valider une réservation");
+        System.out.println("6: Supprimer une réservation");
+        System.out.println("7: Vérifier les conflits");
+        System.out.println("8: Afficher les réservations");
+        System.out.println("9: Afficher les salles disponibles");
+        System.out.println("10: Quitter le programme");
     }
 
+    public boolean isRoomNameTaken(String name) {
+        return roomRepository.findByName(name).isPresent();
+    }
 }
